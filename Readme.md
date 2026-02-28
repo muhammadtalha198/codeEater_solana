@@ -11,3 +11,9 @@ anchor test
 
 # to deploy the program 
 anchor deploy
+
+# to run solana run local 
+solana-test-validator
+
+# to make sure program id is sam eis every where 
+anchor keys sync 
