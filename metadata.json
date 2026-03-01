@@ -1,0 +1,17 @@
+{
+  "name": "Oggcoin",
+  "symbol": "OGG",
+  "description": "Oggcoin born in cave. Tribe laugh, but Ogg also mine rock, make copper flow. Real proof-of-work fire keep chain strong. Memes live on Solana, Ogg cross bridge to EVM lands. Joke on surface, real hash tribe underneath.",
+  "image": "https://salmon-changing-termite-215.mypinata.cloud/ipfs/bafkreigu4tj2k66umyrvedgltyzf6wny3irb6or7ioiszd6434xc2rn5dq",
+  "external_url": "https://oggcoin.org",
+  "attributes": [
+    {"trait_type": "category", "value": "meme"},
+    {"trait_type": "chain", "value": "solana"}
+  ],
+  "creators": [
+    {
+      "address": "7Yh1ZLxZssDnAcPChWoVZKDBChrVnBrna7uQq18opunw",
+      "share": 100
+    }
+  ]
+}

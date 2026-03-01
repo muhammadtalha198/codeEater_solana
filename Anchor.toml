@@ -7,7 +7,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-calci = "8HwWCiVQPYG4L5SRFfWqJP1VK1xQ4EWwebVLcumWJ2gE"
+calci = "DGenjdsqRc7grLZhfvLe8XJNVUqW2qAe6GNNknEXWkPS"
 
 [registry]
 url = "https://api.apr.dev"

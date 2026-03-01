@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount};
 
-declare_id!("8HwWCiVQPYG4L5SRFfWqJP1VK1xQ4EWwebVLcumWJ2gE");
+declare_id!("DGenjdsqRc7grLZhfvLe8XJNVUqW2qAe6GNNknEXWkPS");
 
 // ============================================================
 //  OGGCOIN ($OGG) — Solana Anchor Program v1.0
@@ -89,6 +89,7 @@ pub mod oggcoin {
     ) -> Result<()> {
         let state = &mut ctx.accounts.state;
 
+        require!(treasury != Pubkey::default(), OggError::InvalidTreasury);
         require!(!state.is_initialized, OggError::AlreadyInitialized);
 
         state.admin = ctx.accounts.admin.key();
@@ -122,12 +123,17 @@ pub mod oggcoin {
     pub fn mint_initial_supply(ctx: Context<MintInitialSupply>) -> Result<()> {
         let state = &mut ctx.accounts.state;
 
+        require!(ctx.accounts.admin.key() == state.admin, OggError::Unauthorized);
         require!(state.is_initialized, OggError::NotInitialized);
         require!(state.total_minted == 0, OggError::AlreadyMinted);
 
-        // Verify the treasury token account belongs to the correct treasury
+        // Verify the treasury token account belongs to the correct treasury and mint (defense-in-depth; constraints also enforce this)
         require!(
             ctx.accounts.treasury_token_account.owner == state.treasury,
+            OggError::InvalidTreasury
+        );
+        require!(
+            ctx.accounts.treasury_token_account.mint == state.mint,
             OggError::InvalidTreasury
         );
 
@@ -202,6 +208,7 @@ pub mod oggcoin {
             ctx.accounts.admin.key() == ctx.accounts.state.admin,
             OggError::Unauthorized
         );
+        require!(new_treasury != Pubkey::default(), OggError::InvalidTreasury);
 
         let old_treasury = ctx.accounts.state.treasury;
         ctx.accounts.state.treasury = new_treasury;
@@ -256,7 +263,11 @@ pub struct Initialize<'info> {
     )]
     pub mint_authority: UncheckedAccount<'info>,
 
+    /// Pinned to official System Program to prevent fake program CPI.
+    #[account(address = anchor_lang::system_program::ID)]
     pub system_program: Program<'info, System>,
+    /// Pinned to official SPL Token Program to prevent fake program CPI.
+    #[account(address = anchor_spl::token::ID)]
     pub token_program: Program<'info, Token>,
 }
 
@@ -284,9 +295,15 @@ pub struct MintInitialSupply<'info> {
     pub mint_authority: UncheckedAccount<'info>,
 
     /// Treasury token account (ATA of treasury wallet for OGG)
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = treasury_token_account.owner == state.treasury @ OggError::InvalidTreasury,
+        constraint = treasury_token_account.mint == state.mint @ OggError::InvalidTreasury,
+    )]
     pub treasury_token_account: Account<'info, TokenAccount>,
 
+    /// Pinned to official SPL Token Program to prevent fake program CPI.
+    #[account(address = anchor_spl::token::ID)]
     pub token_program: Program<'info, Token>,
 }
 
